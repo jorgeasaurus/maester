@@ -1,0 +1,36 @@
+name: Daily tests
+
+on:
+  push:
+    branches: ["main"]
+  # Run once a day at midnight
+  schedule:
+    - cron: "0 6 * * *"
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+      id-token: write # important because the actions needs it to authenticate to Entra using workload identity
+      contents: read
+      checks: write
+
+jobs:
+  daily-tests:
+    name: Daily security scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Maester 🔥
+      id: maester # this is important, by setting the id you can use the output of the action in the next steps
+      uses: maester365/maester-action@v1.0.1 # this is the new action
+      with:
+        client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        include_public_tests: true # Optional
+        include_private_tests: true # Optional
+        include_exchange: false # Optional
+        include_teams: false # Optional
+        pester_verbosity: None # Optional - 'None', 'Normal', 'Detailed', 'Diagnostic'
+        step_summary: true         # Optional: Set to false if you don't want a summary added to your GitHub Action run
+        artifact_upload: true      # Optional: Set to false if you don't want summaries uploaded to GitHub Artifacts
+        maester_version: latest  # Optional: Set to 'latest' or 'preview' to use the latest version of the Maester module or a specific version like '1.0.83-preview'
+        disable_telemetry: false   # Optional: Set to true If you want telemetry information not to be logged.
